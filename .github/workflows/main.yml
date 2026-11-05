@@ -1,1 +1,30 @@
 
+name: Restore structure
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract parts
+        run: |
+          for z in parts/*.zip; do
+            echo "extracting $z"
+            unzip -q -o "$z"
+          done
+          rm -rf parts restore.sh restore.ps1
+
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f -A
+          git commit -m "Restore full project structure"
+          git push
