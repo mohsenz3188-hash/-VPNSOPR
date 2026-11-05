@@ -1,29 +1,53 @@
-
-name: Restore structure
+name: Build APK
 
 on:
   workflow_dispatch:
 
-permissions:
-  contents: write
+env:
+  FLUTTER_VERSION: 3.47.7
+  GOMOBILE_VERSION: v0.0.0-20260908204917-8b95e45f8d3e
 
 jobs:
-  restore:
-    runs-on: ubuntu-latest
+  apk:
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: core/go.mod
+          cache-dependency-path: core/go.sum
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
 
-      - name: Rebuild project from the zip
+      - name: NDK and gomobile
         run: |
-          find . -mindepth 1 -maxdepth 1 ! -name .git ! -name .github ! -name VPNSOPR-FULL-SOURCE.zip -exec rm -rf {} +
-          unzip -q VPNSOPR-FULL-SOURCE.zip -x 'VPNSOPR/.github/workflows/*'
-          cp -a VPNSOPR/. .
-          rm -rf VPNSOPR VPNSOPR-FULL-SOURCE.zip
+          ndk="$(sed -n 's/.*ndkVersion = "\(.*\)".*/\1/p' app/android/app/build.gradle.kts)"
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "ndk;$ndk" > /dev/null
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/$ndk" >> "$GITHUB_ENV"
+          go install "golang.org/x/mobile/cmd/gomobile@$GOMOBILE_VERSION" "golang.org/x/mobile/cmd/gobind@$GOMOBILE_VERSION"
 
-      - name: Commit
+      - name: Build APK
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -f -A
-          git commit -m "Restore full project structure"
-          git push
+          v="$(sed -n 's/^version:[[:space:]]*\([0-9]*\.[0-9]*\.[0-9]*\).*/\1/p' app/pubspec.yaml)"
+          mkdir -p app/android/app/libs out
+          flags="-s -w -X github.com/armanlife/arman-vpn-client/core/internal/version.Current=$v"
+          (cd core && gomobile bind -target=android -androidapi 24 -trimpath \
+            -ldflags "$flags" \
+            -o ../app/android/app/libs/core.aar ./mobile)
+          cd app
+          flutter pub get
+          flutter build apk --release --dart-define=APP_VERSION=$v
+          cp build/app/outputs/flutter-apk/app-release.apk ../out/VPNSOPR-universal.apk
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: VPNSOPR-apk
+          path: out/*
+          if-no-files-found: error
