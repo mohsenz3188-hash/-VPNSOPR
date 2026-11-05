@@ -1,82 +1,144 @@
-# Arman VPN core
+<div align="center">
 
-An unofficial Go client for Mozilla's Firefox VPN (IP Protection) service. It signs in with Firefox Accounts, obtains a Guardian ProxyPass, and serves a local SOCKS5 CONNECT proxy through Mozilla's Fastly HTTP/2 (or experimental HTTP/3) proxies. Several accounts can be stored; when the active one has used its quota threshold (95% by default; the last usable account goes on to the end of its quota), the next one takes over without dropping open connections. A built-in web dashboard manages accounts, settings, logs, and connection tests.
+**🇺🇸 English** &nbsp;/&nbsp; [🇨🇳 简体中文](docs/readme/README_zh.md) &nbsp;/&nbsp; [🇷🇺 Русский](docs/readme/README_ru.md) &nbsp;/&nbsp; [🇮🇷 فارسی](docs/readme/README_fa.md)
 
-The proxy carries TCP traffic, and UDP on the ports Mozilla's proxy allows, from applications configured to use SOCKS5. Firefox does not need to be installed or running. There is no SOCKS5 BIND; the desktop app adds a TUN mode for the whole computer.
+</div>
+<br>
 
-## Quick start
+<p align="center"><img src="docs/images/logo.png" width="128" alt="VPNSOPR"></p>
 
-1. Run the program: double-click `arman-vpn-core.exe` on Windows, or start `./arman-vpn-core` in a Linux terminal. The window shows a status screen with a numbered list of actions and runs the proxy until you quit it; if the desktop app (or a tray started with `-tray`) already runs the core for the same data folder, the window controls that one instead. A `user-data` folder is created next to the program; beside the desktop app (`arman-vpn.exe`) the core uses the app's data folder.
-2. Open the dashboard at <http://127.0.0.1:10820/app/> (option **1** on the status screen).
-3. On **Accounts**, choose **Add account** and sign in with a Firefox Account (email code, authenticator code, unblock code, and CAPTCHA prompts are shown when Mozilla asks for them).
-4. Point applications at the SOCKS5 proxy `127.0.0.1:10810` (it also serves HTTP proxy clients). By default (**Clear system proxy**) only applications set up by hand use it; on Windows, **Set system proxy** (the tray menu, the status screen, or the dashboard's Settings) points Windows' proxy setting at it while it runs.
-5. Optional: on the dashboard's **Servers** page, test the real delay and pick a server, or choose **Auto (fastest)**.
+<h1 align="center">VPNSOPR</h1>
 
-Everything else (location, ports, threshold, dashboard login, transport) is on the **Settings** tab or in `user-data/config.json`. See the [operator guide](doc/OPERATOR.md) for the tray icon, Linux/systemd, and troubleshooting.
+<h2 align="center">⚠️ Unofficial project</h2>
 
-**The `user-data` folder holds account credentials.** Keep it private; do not share or zip the program folder with it. Use only accounts you are authorized to use and respect Mozilla's terms.
+> VPNSOPR is an independently modified fork of [armanlife/arman-vpn-client](https://github.com/armanlife/arman-vpn-client). Original copyright notices and the GPL-3.0 license are retained.
 
-## Project layout
+<h3 align="center">Arman VPN is an independent project. It is not made, owned, sponsored, or endorsed by Mozilla, and is not affiliated with Mozilla in any way. See the <a href="#disclaimer">disclaimer</a>.</h3>
+
+<div align="center">
+
+[![Downloads](https://img.shields.io/github/downloads/armanlife/arman-vpn-client/total?style=flat-square&logo=github&label=Downloads)](https://github.com/armanlife/arman-vpn-client/releases)
+[![Last Version](https://img.shields.io/github/v/release/armanlife/arman-vpn-client?style=flat-square&label=Version)](https://github.com/armanlife/arman-vpn-client/releases/latest)
+[![License](https://img.shields.io/github/license/armanlife/arman-vpn-client?style=flat-square&label=License)](LICENSE)
+
+</div>
+
+## What is VPNSOPR?
+
+**VPNSOPR** is a rebranded fork of the original open-source VPN client that works with a Firefox Account. It carries your internet traffic through Mozilla's servers, on **Fastly**'s infrastructure, over secure **HTTP/2 and HTTP/3** tunnels.
+
+For **Android, Windows, macOS, and Linux**; completely free, with no ads.
+
+<p align="center"><a href="https://raw.githubusercontent.com/armanlife/arman-vpn-client/main/docs/screenshots/main.webp" target="_blank"><img src="docs/screenshots/main.webp" width="720" alt="VPNSOPR"></a></p>
+
+## 🚀 Main features
+
+✈️ Cross-platform: Android, Windows, macOS, and Linux
+
+📺 Android TV: works with the remote control
+
+⭐ Very easy to use, with a simple interface
+
+🆓 Free: 50 GB a month for every Firefox Account
+
+🌐 Mozilla's servers: choose a country with a ping test, or let the app pick the best server
+
+⚡ Fast, stable connections over HTTP/2 and HTTP/3
+
+🔀 Smart routing (split tunneling): choose the sites and apps that skip the VPN
+
+🧱 If your network blocks the connection: TLS fragmentation, upstream SOCKS5 proxy, and a relay server
+
+🔒 Encrypted DNS (DNS over HTTPS)
+
+🌍 15 languages, including English, Persian, Chinese, and Russian
+
+🌙 Light and dark themes
+
+🛡 Open source, secure, and community-driven
+
+🔄 Automatic updates
+
+## 📸 Screenshots
+
+<p align="center">
+<img src="docs/screenshots/phone_01.webp" width="240" alt="Home">&nbsp;&nbsp;
+<img src="docs/screenshots/phone_02.webp" width="240" alt="Servers">&nbsp;&nbsp;
+<img src="docs/screenshots/phone_03.webp" width="240" alt="Settings">
+</p>
+
+## 📥 Download
+
+No VPNSOPR release binaries have been published yet. Build this fork from source using the instructions in `app/README.md` and `core/README.md`. Do not install the upstream project's release files as VPNSOPR builds.
+
+## 💻 Install and update on Linux and macOS
+
+> Windows and Android users don't need this section: take the installer from the "Download" table above.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/armanlife/arman-vpn-client/main/install.sh | bash
+```
+
+### 🌐 Web panel
+
+For Linux servers, Arman VPN has a **web panel** that opens in any browser and has everything the app has: managing accounts and data, choosing a server and testing delay, the connection test, the live log, and every setting.
+
+<p align="center"><img src="docs/screenshots/web.webp" width="720" alt="Web panel"></p>
+
+- **Panel address:** `http://SERVER-IP:10820/app/`, with a username and password. The exact address is shown at the end of the install.
+- **Proxy:** SOCKS5 and HTTP on port `10810`, with a username and password of its own.
+
+### ⌨️ Managing from the terminal
+
+On the server, run `sudo arman-vpn` to open the management menu:
 
 ```text
-cmd/arman-vpn-core/   Program entry: flags, run modes, one-shot commands; Windows icon resources
-tools/winres/            Generator of the Windows icon and version resources
-internal/service/        Service supervisor, dashboard and its API, API client
-internal/service/web/    Dashboard page, styles, and script (embedded in the binary)
-internal/proxy/          Accounts bridge, location selection, SOCKS5, H2/H3 sessions, renewal
-internal/desktop/        Tray icon, terminal status screen, desktop app mode, notifications
-internal/logx/           Logging and the log file
-internal/version/        Program version
-internal/fxa/            Firefox Accounts sign-in, HAWK, OAuth, Fastly challenge
-internal/guardian/       Guardian ProxyPass, quota usage, activation, status errors
-internal/serverlist/     Remote Settings server list and Firefox record filters
-internal/accounts/       Account storage, quota threshold, and failover policy
-internal/config/         config.json schema, defaults, and the portable data folder
-internal/controlplane/   Shared HTTP client for all control-plane API calls
-internal/securefile/     Atomic owner-only writes for credentials and settings
-internal/resolver/       Configurable DNS (DoH, DoT, plain) for Mozilla's servers and APIs
-scripts/                 Linux systemd installer
-doc/                     Maintained guides
+$ sudo arman-vpn
+
+  Arman VPN
+  ────────────────────────────────────────────────────────────────────────────
+    Service     ● running
+    Autostart   on
+  ────────────────────────────────────────────────────────────────────────────
+   0) Exit
+  ────────────────────────────────────────────────────────────────────────────
+   1) Update                                   arman-vpn update
+   2) Uninstall                                arman-vpn uninstall
+  ────────────────────────────────────────────────────────────────────────────
+   3) Set panel login                          arman-vpn panel
+   4) View panel info                          arman-vpn panel-info
+  ────────────────────────────────────────────────────────────────────────────
+   5) Status                                   arman-vpn status
+   6) Start                                    arman-vpn start
+   7) Stop                                     arman-vpn stop
+   8) Restart                                  arman-vpn restart
+   9) Show the log                             arman-vpn logs
+  ────────────────────────────────────────────────────────────────────────────
+  10) Enable autostart                         arman-vpn enable
+  11) Disable autostart                        arman-vpn disable
+  ────────────────────────────────────────────────────────────────────────────
+  12) Add a Firefox Account                    arman-vpn add-account
+  13) List the accounts                        arman-vpn list-accounts
+  ────────────────────────────────────────────────────────────────────────────
+  Enter a number [0-13]:
 ```
 
-Country flags in the dashboard come from [flag-icons](https://github.com/lipis/flag-icons) 7.2.3 (MIT, see `internal/service/web/flags/LICENSE`).
+## OpenWrt routers
 
-Tests sit next to the code they cover (`<name>_test.go`). See [ARCHITECTURE.md](doc/ARCHITECTURE.md) for package boundaries and call paths.
+To install on an OpenWrt router, see the [OpenWrt guide](docs/OPENWRT.md).
 
-## Documentation
+## Known limitations
 
-All maintained documentation is in English.
+<details>
+<summary>What Mozilla's servers do not carry</summary>
 
-| Document | Purpose |
-| --- | --- |
-| [Documentation index](doc/README.md) | Task routing and the complete development reference |
-| [Operator guide](doc/OPERATOR.md) | Running on Windows and Linux, systemd, troubleshooting |
-| [Dashboard](doc/DASHBOARD.md) | Pages, API, login, and request security |
-| [Multi-account mode](doc/MULTI-ACCOUNT.md) | Accounts, failover rules, data folder |
-| [Configuration](doc/CONFIGURATION.md) | `config.json` and the files in the data folder |
-| [Development workflow](doc/DEVELOPMENT.md) | Setup, scoped edit workflow, builds |
+- **TCP:** ports 80, 443, 8080, and 8443 only. Other ports, such as mail (25, 465, 587, 993) and SSH (22), are refused. Git over SSH to GitHub is the exception: it goes through port 443 by itself.
+- **UDP:** ports 80, 443, 3478, 8080, 8443, and 49152-65534 only. Calls and games on other ports do not go through. Browsers and most apps work normally.
 
-## Build and local verification
+</details>
 
-Run commands from the project root. The module declares Go `1.27.2`. Dependency versions are pinned in [go.mod](go.mod) and [go.sum](go.sum).
+## Disclaimer
 
-```powershell
-go test -count=1 -timeout=180s ./...
-go vet ./...
-```
+This app is an independent, unofficial client, made and maintained by its own developer. It is not a Mozilla product: Mozilla did not make it, does not own, sponsor, or endorse it, and has no part in its development or support. Questions and problems about the app belong in this repository, not with Mozilla.
 
-Build a Windows AMD64 executable (no CGO needed):
-
-```powershell
-$env:GOOS = 'windows'; $env:GOARCH = 'amd64'; $env:CGO_ENABLED = '0'
-go generate ./cmd/arman-vpn-core   # icon and version information, after a version change
-go build -trimpath -o dist\arman-vpn-core.exe ./cmd/arman-vpn-core
-```
-
-The ordinary test suite uses local fixtures and synthetic credentials. Real account tests require separate, explicit opt-in.
-
-## Recorded verification and limits
-
-Live H2 traffic, concurrent requests, an OAuth refresh accepted by Guardian, and natural ProxyPass renewal with an open connection have been verified against the real service. The multi-account service and the dashboard are covered by tests with local fixtures.
-
-Account eligibility, server availability, and quotas depend on the service. Credentials are stored as plaintext JSON with owner-only permissions on Linux; there is no Windows DPAPI integration. The dashboard has no HTTPS: when it is opened from another device, its traffic (including passwords typed into it) crosses the network unencrypted.
+You sign in with your own Mozilla account. The account's terms, data limit, and availability are set by Mozilla. Your password and sign-in tokens stay on your device.
