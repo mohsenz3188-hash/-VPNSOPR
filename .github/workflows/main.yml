@@ -13,13 +13,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Extract parts
+      - name: Rebuild project from the zip
         run: |
-          for z in parts/*.zip; do
-            echo "extracting $z"
-            unzip -q -o "$z"
-          done
-          rm -rf parts restore.sh restore.ps1
+          find . -mindepth 1 -maxdepth 1 ! -name .git ! -name .github ! -name VPNSOPR-FULL-SOURCE.zip -exec rm -rf {} +
+          unzip -q VPNSOPR-FULL-SOURCE.zip -x 'VPNSOPR/.github/workflows/*'
+          cp -a VPNSOPR/. .
+          rm -rf VPNSOPR VPNSOPR-FULL-SOURCE.zip
 
       - name: Commit
         run: |
